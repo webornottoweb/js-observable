@@ -14,7 +14,7 @@ function makeReactive(obj, key) {
         set(newVal) {
             val = newVal;
             console.log(newVal);
-            // notify(newVal);
+            notify(key, newVal);
         }
     });
 }
@@ -28,6 +28,32 @@ function observeData(obj) {
 }
 
 observeData(data);
-data.age = 26;
-data.firstName = 'Andrey';
-console.log(data.age, data.firstName);
+
+let signals = {};
+
+function observe(property, callback) {
+    if (!signals[property]) {
+        signals[property] = [];
+    }
+
+    signals[property].push(callback);
+}
+
+function notify(signal, newVal) {
+    if (!signals[signal] || signals[signal].length < 1) {
+        return;
+    }
+
+    signals[signal].forEach(callback => callback(newVal));
+}
+
+observe('firstName', newVal => {
+    console.log(`Oh no, first name was changed with ${newVal}`);
+});
+
+observe('lastName', newVal => {
+    console.log(`Yeah, last name was changed with ${newVal}`);
+});
+
+data.firstName = 'New';
+data.lastName = 'New1';
